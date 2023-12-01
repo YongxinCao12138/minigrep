@@ -17,9 +17,11 @@ impl Config {
             file_path: args[2].clone(),
             is_sensitive: env::var("IGNORE_CASE").map_or_else(
                 |_| {
+                    // none
                     args.iter()
                         .any(|arg| arg.eq("-i") || arg.eq("--ignore-case"))
                 },
+                // Ok
                 |env_var| env_var.eq("true") || env_var.eq("1"),
             ),
         });
