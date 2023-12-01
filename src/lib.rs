@@ -15,7 +15,7 @@ impl Config {
         return Ok(Config {
             search_string: args[1].clone(),
             file_path: args[2].clone(),
-            is_sensitive: env::var("IGNORE_CASE").is_ok(),
+            is_sensitive: env::var("IGNORE_CASE").map_or(false, |var| var.eq("1")),
         });
     }
 }
