@@ -1,4 +1,4 @@
-use std::{env, fs, error::Error};
+use std::{env, error::Error, fs};
 
 pub struct Config {
     pub search_string: String,
@@ -15,7 +15,13 @@ impl Config {
         return Ok(Config {
             search_string: args[1].clone(),
             file_path: args[2].clone(),
-            is_sensitive: env::var("IGNORE_CASE").map_or(false, |var| var.eq("1")),
+            is_sensitive: env::var("IGNORE_CASE").map_or_else(
+                |_| {
+                    args.iter()
+                        .any(|arg| arg.eq("-i") || arg.eq("--ignore-case"))
+                },
+                |env_var| env_var.eq("true") || env_var.eq("1"),
+            ),
         });
     }
 }
@@ -58,7 +64,6 @@ pub fn search_case_insensitive<'a>(query: &'a str, contents: &'a str) -> Vec<&'a
         }
     }
 
-
     result
 }
 
@@ -73,7 +78,7 @@ mod tests {
 Rust:
 safe, fast, productive.
 Pick three.";
-        
+
         assert_eq!(vec!["safe, fast, productive."], search(query, contents));
     }
 
@@ -86,6 +91,9 @@ safe, fast, productive.
 Pick three.
 Trust me.";
 
-        assert_eq!(vec!["Rust:", "Trust me."], search_case_insensitive(query, contents));
+        assert_eq!(
+            vec!["Rust:", "Trust me."],
+            search_case_insensitive(query, contents)
+        );
     }
 }
